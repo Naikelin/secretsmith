@@ -1,25 +1,45 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
-	k8sClientMiddleware "github.com/naikelin/secretsmith/internal/middlewares/k8s"
-	loggerMiddleware "github.com/naikelin/secretsmith/internal/middlewares/logger"
+	"fmt"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
+
+	_ "github.com/joho/godotenv/autoload"
 	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
 )
 
-func Start(logger *zap.Logger, k8sClient *kubernetes.Clientset) {
-	r := gin.Default()
+type Server struct {
+	logger    *zap.Logger
+	k8sClient *kubernetes.Clientset
+	port      int
+}
 
-	r.Use(loggerMiddleware.LoggerMiddleware(logger))
-	r.Use(k8sClientMiddleware.K8sClientMiddleware(k8sClient))
-
-	RegisterRoutes(r)
-
-	port := ":8000"
-	err := r.Run(port)
-	if err != nil {
-		logger.Fatal("Error starting server", zap.Error(err))
+func NewServer(logger *zap.Logger, k8sClient *kubernetes.Clientset) *http.Server {
+	portStr := os.Getenv("PORT")
+	if portStr == "" {
+		portStr = "8080"
 	}
-	logger.Info("Server started", zap.String("port", port))
+	port, _ := strconv.Atoi(portStr)
+
+	NewServer := &Server{
+		port:      port,
+		logger:    logger,
+		k8sClient: k8sClient,
+	}
+
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%d", NewServer.port),
+		Handler:      NewServer.RegisterRoutes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
+
+	logger.Info("Server created!", zap.Int("port", NewServer.port))
+
+	return server
 }

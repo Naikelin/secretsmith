@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"log"
 	"sync"
 
 	"go.uber.org/zap"
@@ -20,7 +19,7 @@ func InitLogger() *zap.Logger {
 
 		logger, err = config.Build()
 		if err != nil {
-			log.Fatal("Error building logger: ", err)
+			panic(err)
 		}
 	})
 	return logger
