@@ -13,13 +13,24 @@ import (
 	"github.com/naikelin/secretsmith/internal/utils/logger"
 	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 func initK8sClient(kubeconfig, masterURL string) (*kubernetes.Clientset, error) {
-	config, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
-	if err != nil {
-		return nil, fmt.Errorf("Error building kubeconfig: %v", err)
+	var config *rest.Config
+	var err error
+
+	if kubeconfig == "" {
+		config, err = rest.InClusterConfig()
+		if err != nil {
+			return nil, fmt.Errorf("Error getting in-cluster config: %v", err)
+		}
+	} else {
+		config, err = clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
+		if err != nil {
+			return nil, fmt.Errorf("Error building kubeconfig: %v", err)
+		}
 	}
 
 	k8sClient, err := kubernetes.NewForConfig(config)
