@@ -1,8 +1,6 @@
 package namespaces
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	nsController "github.com/naikelin/secretsmith/internal/controllers/namespaces"
 	k8sClient "github.com/naikelin/secretsmith/internal/middlewares/k8s"
@@ -14,11 +12,12 @@ func (h *Namespaces) GetNamespacesHandler(c *gin.Context) {
 	k8sClient := k8sClient.GetK8sClient(c.Request.Context())
 
 	response := nsController.NewConfigmapsController(logger, k8sClient).GetNamespaces(c)
+	statusCode := response.GetMeta().StatusCode
 
 	if response.IsLeft() {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": response.GetLeft()})
+		c.JSON(statusCode, gin.H{"error": response.GetLeft()})
 		return
 	}
 
-	c.JSON(http.StatusOK, response.GetRight())
+	c.JSON(statusCode, response.GetRight())
 }

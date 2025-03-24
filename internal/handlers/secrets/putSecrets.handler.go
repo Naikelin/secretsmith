@@ -22,11 +22,12 @@ func (h *Secrets) PutSecretsHandler(c *gin.Context) {
 	}
 
 	response := sController.NewSecrets(logger, k8sClient).UpdateSecret(c, secretNS, secretName, secret)
+	statusCode := response.GetMeta().StatusCode
 
 	if response.IsLeft() {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": response.GetLeft()})
+		c.JSON(statusCode, gin.H{"error": response.GetLeft()})
 		return
 	}
 
-	c.JSON(http.StatusOK, response.GetRight())
+	c.JSON(statusCode, response.GetRight())
 }

@@ -7,12 +7,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (c *Namespaces) GetNamespaces(ctx *gin.Context) response.Either[error, []corev1.Namespace] {
+func (c *Namespaces) GetNamespaces(ctx *gin.Context) response.Either[error, []corev1.Namespace, response.HttpMeta] {
 	c.logger.Info("Listing Namespaces")
 
 	allNamespaces, err := c.k8sClient.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
-		return response.Left[error, []corev1.Namespace](err)
+		return response.Left[error, []corev1.Namespace, response.HttpMeta](response.HttpMeta{
+			StatusCode: 500,
+			Message:    "Error retrieving Namespaces",
+		}, err)
 	}
-	return response.Right[error, []corev1.Namespace](allNamespaces.Items)
+	return response.Right[error, []corev1.Namespace, response.HttpMeta](response.HttpMeta{
+		StatusCode: 200,
+		Message:    "Namespaces retrieved successfully",
+	}, allNamespaces.Items)
 }

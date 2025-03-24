@@ -22,11 +22,12 @@ func (h *Configmaps) PutConfigmapsHandler(c *gin.Context) {
 		return
 	}
 	response := cmController.NewConfigmapsController(logger, k8sClient).UpdateConfigMap(c, cmNS, cmName, configMap)
+	statusCode := response.GetMeta().StatusCode
 
 	if response.IsLeft() {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": response.GetLeft()})
+		c.JSON(statusCode, gin.H{"error": response.GetLeft()})
 		return
 	}
 
-	c.JSON(http.StatusOK, response.GetRight())
+	c.JSON(statusCode, response.GetRight())
 }
