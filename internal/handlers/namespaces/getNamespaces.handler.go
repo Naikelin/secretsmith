@@ -11,7 +11,7 @@ func (h *Namespaces) GetNamespacesHandler(c *gin.Context) {
 	logger := logger.GetLogger(c.Request.Context())
 	k8sClient := k8sClient.GetK8sClient(c.Request.Context())
 
-	response := nsController.NewConfigmapsController(logger, k8sClient).GetNamespaces(c)
+	response := nsController.NewConfigmapsController(logger, k8sClient).ListNamespaces(c)
 	statusCode := response.GetMeta().StatusCode
 
 	if response.IsLeft() {

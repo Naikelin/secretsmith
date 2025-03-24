@@ -13,7 +13,7 @@ func (h *Secrets) GetSecretsHandler(c *gin.Context) {
 
 	cmNS := c.Param("secretns")
 
-	response := sController.NewSecrets(logger, k8sClient).GetSecretsOfNS(c, cmNS)
+	response := sController.NewSecrets(logger, k8sClient).ListSecretsOfNS(c, cmNS)
 
 	statusCode := response.GetMeta().StatusCode
 
