@@ -32,10 +32,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/namespaces", namespaces.NewNamespaces().GetNamespacesHandler)
 
 	r.GET("/configmaps/:cmns", configmaps.NewConfigmaps().GetConfigmapsHandler)
+	r.GET("/configmap/:cmns/:cmname", configmaps.NewConfigmaps().GetConfigmapHandler)
+	r.DELETE("/configmap/:cmns/:cmname", configmaps.NewConfigmaps().DeleteConfigmapHandler)
 	r.POST("/configmaps", configmaps.NewConfigmaps().PostConfigmapsHandler)
 	r.PUT("/configmaps/:cmns/:cmname", configmaps.NewConfigmaps().PutConfigmapsHandler)
 
 	r.GET("/secrets/:secretns", secrets.NewSecrets().GetSecretsHandler)
+	r.GET("/secret/:secretns/:secretname", secrets.NewSecrets().GetSecretHandler)
+	r.DELETE("/secrets/:secretns/:secretname", secrets.NewSecrets().DeleteSecretHandler)
 	r.POST("/secrets", secrets.NewSecrets().PostSecretsHandler)
 	r.PUT("/secrets/:secretns/:secretname", secrets.NewSecrets().PutSecretsHandler)
 
